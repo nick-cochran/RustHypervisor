@@ -3,7 +3,7 @@ use rust_hypervisor::paging;
 use paging::*;
 // use arch_paging::*;
 // use declarations::*;
-use paging_structure::*;
+use arch_paging::*;
 use phys_book::*;
 use virt_book::*;
 
@@ -31,7 +31,7 @@ impl<ACD, ECD> RustHypervisor<'_, ACD, ECD> {
 
 pub struct RustHypervisorPaging<'mem, ACD, ECD> { // TODO can probably remove 'virt_mem, but figure that out
     pub phys_book: PhysBook,
-    pub paging_structure: PagingStructure<ACD, ECD>,
+    pub arch_paging_struct: ArchPaging<ACD, ECD>,
     pub virt_book: VirtBook<'mem>
 }
 
@@ -39,7 +39,7 @@ impl<ACD, ECD> RustHypervisorPaging<'_, ACD, ECD> {
     pub fn new() -> Self {
         RustHypervisorPaging {
             phys_book: PhysBook::new(),
-            paging_structure: PagingStructure::<ACD, ECD>::new(),
+            arch_paging_struct: ArchPaging::<ACD, ECD>::new(),
             virt_book: VirtBook::new()
         }
     }

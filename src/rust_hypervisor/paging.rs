@@ -1,27 +1,20 @@
+/// TODO file comment
+
 pub mod declarations;
 pub mod phys_book;
 pub mod virt_book;
-pub mod paging_structure;
 pub mod arch_paging;
+pub mod arch_paging_access;
 
 use std::sync::atomic::Ordering;
-// use std::mem::size_of;
-use super::super::user_space_arch::arch::AcdUserLevel;
-use super::super::exec::EcdBase;
-
+use std::time::Instant;
 use crate::rust_hypervisor;
-// use rust_hypervisor::paging;
-use arch_paging::*;
+use arch_paging_access::*;
 use declarations::*;
-use paging_structure::*;
 use phys_book::*;
 use virt_book::*;
-// use rust_hypervisor::hypervisor::{RustHypervisor};
 use rust_hypervisor::setup::HYPERVISOR;
 use crate::rust_hypervisor::setup::PAGE_SIZE;
-// static ARCH_PAGE_SIZE : usize = 1 << 12; // TEMP: this will come from external arch specific code
-
-// static PAGE_SIZE : usize = ARCH_PAGE_SIZE;
 
 
 /// initialize the hypervisor paging system
@@ -29,111 +22,48 @@ use crate::rust_hypervisor::setup::PAGE_SIZE;
 pub fn paging_init() -> Result<(), u8> {
 
     let mut hypervisor_struct = HYPERVISOR.lock().unwrap();
+
+    // get references to the relevant structs
     let paging_structs = &mut hypervisor_struct.rust_hypervisor_paging;
-
-    paging_structs.paging_structure = PagingStructure::new();
-    paging_structs.phys_book = PhysBook::new();
-
     let mut phys_book = &mut paging_structs.phys_book;
-    let mut hv_paging  = &mut paging_structs.paging_structure;
+    let mut arch_paging  = &mut paging_structs.arch_paging_struct;
 
 
+    // set up the variables inside of phys_book and hv_paging
 
-    // let mut hv_paging : PagingStructure<AcdUserLevel, EcdBase> = PagingStructure::new();
-    // let mut phys_book: PhysBook = PhysBook::new();
+    let page_size : usize = PAGE_SIZE.load(Ordering::SeqCst);
+    arch_paging.page_size = page_size;
 
-    // TODO do I want to get rid of these in favor of the global variable set by the architecture
-    // FIXME YES I NEED TO DO THAT
-    let page_size : usize = hv_paging.get_arch_page_size();
-    hv_paging.page_size = page_size;
-
-    let mem_size : usize = hv_paging.get_hv_mem_size();
-    // this depends on the existence of an allocator because Vec is in the alloc crate
-    let num_total_pages : usize = num_pages(mem_size, page_size);
+    let mem_size : usize = arch_paging.get_hv_mem_size();
+    let num_total_pages : NumPages = mem_size / page_size;
     phys_book.num_total_pages = num_total_pages;
-    let start_addr = hv_paging.get_hv_mem_start();
-    // TODO move all_pages to arch and only do bookkeeping here
+
+    // This could be changed later to just be an offset starting at 0
+    // where the arch code knows the starting address and applies the offset to that
+    let start_addr = arch_paging.get_hv_mem_start();
     phys_book.mem_start = start_addr;
     phys_book.free_pages.insert(start_addr, num_total_pages); // insert the whole thing into the free pages map
 
+    // This is where any relevant flags for phys_book can be set
+    // –> there are no flags implemented at this time
+    phys_book.flags = 0;
 
-    /* This whole section came from Jailhouse, but I think it may end up not being what we want
-
-    // not worrying about per_cpu, and not correct at this time
-    let num_per_cpu_pages : usize = 0; // temp, currently set to 0 to ignore it
-    // let per_cpu_pages: usize = hypervisor_header.max_cpus + size_of(struct per_cpu) / PAGE_SIZE;
-
-    // not sure about this one exactly but I'll probably need something along these lines
-    let num_config_pages : usize = num_pages(size_of::<RustHypervisor>(), page_size);
-
-    let total_setup_pages = num_config_pages + num_per_cpu_pages;
-    if num_total_pages <= total_setup_pages {
-        return Err(1);
-    }
-
-
-    // set num_used_pages and used_pages_bitmap from setting up the hv
-    phys_book.num_used_pages += total_setup_pages;
-    for i in 0..total_setup_pages {
-        used_pages_bitmap[i/8] |= 1 << (i % 8); // I've got no clue if this works, but it's the idea
-    }
-     */
-
-    // FIXME LATER set any flags for phys_book here
-
-
+    // See virt_book.rs for more on VirtBook
     let virt_book : VirtBook = VirtBook::new();
-    // TODO what do I need from VIRTBOOK
-    //  -> Is it a remapping structure plus then pass as many of these to the arch as needed?
-    //  -> Is it just the remapping struct and one for the arch to hold it's entire virtual setup?
-    //  -> Is it just one of those?
-    //  Explore how the architecture would use this before deciding that
-    //    -> Write some of the alloc and free code first
-    //    -> This also influences the global hv struct and how it holds the virtual books
-    //        -> Is it just one or is it a collection of them?
 
-    // TODO THIS IS WHAT TO TALK ABOUT ***********************************************************
-    //  Additionally, what about, instead of a bitmap, a btreemap which maps a page index to the
-    //      number of free pages including and following it
-    //  Also, how do I convert an address to a Rust friendly style and when should I do that in the process
-    //  -> see below
-
-    hv_paging.arch_paging_init(virt_book)
-
-    // create the pages for the setup
-    // TODO create a simple setup for allocating and freeing pages
-
-
-    // split each of these structs into different modules
-    // like phys_book for instance
-    // then somewhere else would have global variables for those things
-    // top level is a static global hypervisor object that holds all of this -- global atomic reference
-    //      -> init function that gives you that global a ref
-    //      -> read and write locks on it
-    //      -> Arc<Mutex>
-
+    // pass virt_book to the architecture in case that becomes useful later
+    arch_paging.arch_paging_init(virt_book)
 }
-// FIXME add these TODOs to my notes for record keeping.
-
-// TODO what will the general running of the hv be post-setup?
-//      -> this I can worry about much farther down the line
-//      -> generally run like a server that gets sent signals to set up pages
 
 
-
-
-// TODO use btreemap with box for both alloc and free pages
-//  indices will be nearest to other pages nearest to it in space
-//  keyed by address -- usize
-//  will make things easier in the long run as well
-//  -> random important thought -- make combinations of pages called a chapter
-
-
+/// TODO
 pub fn alloc(size: usize, hierarchical: bool) -> Result<Address, u8> { // FIXME to look/work better with hierarchical changes
+    let now = Instant::now();
+
     let mut hypervisor_struct = HYPERVISOR.lock().unwrap();
     let paging_structs = &mut hypervisor_struct.rust_hypervisor_paging;
     let phys_book = &mut paging_structs.phys_book;
-    let paging = &mut paging_structs.paging_structure;
+    let arch_paging = &mut paging_structs.arch_paging_struct;
     let page_size = PAGE_SIZE.load(Ordering::SeqCst);
 
     let num_pages = num_pages(size, page_size);
@@ -146,11 +76,19 @@ pub fn alloc(size: usize, hierarchical: bool) -> Result<Address, u8> { // FIXME 
     }
     place_chapter(&phys_addr, num_pages, phys_book);
 
-    paging.create_mapping(phys_addr[0])
+    let result = arch_paging.create_mapping(phys_addr[0]);
+
+    let mut alloc_time = ALLOC_TIME.lock().unwrap();
+    *alloc_time = Instant::now().duration_since(now);
+
+    result
 }
 
 
+/// TODO
 pub fn free(phys_addr: usize) -> Result<(), u8> {
+    let now = Instant::now();
+
     let mut hypervisor_struct = HYPERVISOR.lock().unwrap();
     let paging_structs = &mut hypervisor_struct.rust_hypervisor_paging;
     let mut phys_book = &mut paging_structs.phys_book;
@@ -165,14 +103,13 @@ pub fn free(phys_addr: usize) -> Result<(), u8> {
 
     coalesce(phys_addr, num_pages, &mut phys_book);
 
-
+    let mut free_time = FREE_TIME.lock().unwrap();
+    *free_time = Instant::now().duration_since(now);
     Ok(())
-
-    // TODO use unsafe to change the reference and I'll know that's safe (note from meeting)
-    //  -> reference to start and number of pages with a global constant page size
 }
 
 
+/// TODO
 fn coalesce(phys_addr: usize, num_pages: usize, phys_book: &mut PhysBook) {
 
     let is_prev_free: bool;
@@ -182,15 +119,22 @@ fn coalesce(phys_addr: usize, num_pages: usize, phys_book: &mut PhysBook) {
 
     let mut new_num_pages: usize = num_pages;
 
-    let next_page = &(phys_addr + (num_pages*page_size));
-    let next_page_size_opt = &mut free_pages.get(next_page);
+    let mut next_page_size = 0;
+    let next_page_addr = phys_addr + (num_pages*page_size);
+    let next_page_size_opt = &mut free_pages.get(&next_page_addr);
     if next_page_size_opt.is_none() {
         is_next_free = false;
+    } else {
+        next_page_size = *next_page_size_opt.unwrap();
     }
-    let next_page_size = *next_page_size_opt.unwrap();
 
     let mut curr_addr: usize = phys_addr;
     loop {
+        if curr_addr < page_size {
+            is_prev_free = false;
+            break;
+        }
+
         curr_addr = curr_addr - page_size;
         if free_pages.get(&curr_addr).is_some() {
             is_prev_free = true;
@@ -210,58 +154,66 @@ fn coalesce(phys_addr: usize, num_pages: usize, phys_book: &mut PhysBook) {
     }
     if is_next_free {
         new_num_pages += next_page_size;
-        free_pages.remove(next_page);
+        free_pages.remove(&next_page_addr);
     }
 
     free_pages.insert(curr_addr, new_num_pages);
 }
 
 
-fn place_chapter(phys_addr: &Vec<Address>, num_pages: NumPages, phys_book: &mut PhysBook) {
+/// TODO
+fn place_chapter(chapters: &Vec<Address>, num_pages: NumPages, phys_book: &mut PhysBook) {
     // FIXME currently this only works with 1 page chapters, so when it's not hierarchical
+    //  -> should be good now, but requires testing
 
-    // guaranteed because of find_chapter
-    let num_pages_avail= *phys_book.free_pages.get(&phys_addr[0]).unwrap();
     let free_pages = &mut phys_book.free_pages;
     let used_pages = &mut phys_book.used_pages;
     let page_size = PAGE_SIZE.load(Ordering::SeqCst);
 
-    free_pages.remove(&phys_addr[0]);
-    if num_pages_avail > num_pages {
-        let new_addr = phys_addr[0] + num_pages*page_size;
-        free_pages.insert(new_addr, num_pages_avail - num_pages);
-    }
+    let num_chapters = chapters.len();
+    for i in 0..num_chapters {
+        // guaranteed because of find_chapter
+        let num_pages_avail = *free_pages.get(&chapters[i]).unwrap();
 
-    used_pages.insert(phys_addr[0], num_pages);
+        free_pages.remove(&chapters[i]);
+        if num_pages_avail > num_pages {
+            let new_addr = chapters[i] + num_pages * page_size;
+            free_pages.insert(new_addr, num_pages_avail - num_pages);
+        }
+
+        used_pages.insert(chapters[i], num_pages);
+    }
 }
 
 /// simple first_fit search for now
+/// TODO
 fn find_chapter(num_pages: NumPages, phys_book: &mut PhysBook) -> Result<Vec<Address>, u8> {
     let free_pages = &phys_book.free_pages;
 
-    for (addr, size) in free_pages.iter() {
-        if *size >= num_pages {
+    for (addr, pages) in free_pages.iter() {
+        if *pages >= num_pages {
             let mut page = Vec::new();
             page.push(*addr);
             return Ok(page);
         }
     }
 
-    Err(1)
+    Err(NOT_ENOUGH_ROOM)
 }
 
 /// find_chapter but it is hierarchical, meaning it can combine multiple chapters
+/// TODO
 fn find_chapters(num_pages: NumPages, phys_book: &mut PhysBook) -> Result<Vec<Address>, u8> {
-    // TODO
+    // TODO idk why this has a todo
 
     let free_pages = &phys_book.free_pages;
     let mut chapter = Vec::new();
     let mut chapter_size: usize = 0;
 
-    for (addr, size) in free_pages.iter() {
+    for (addr, pages) in free_pages.iter() {
 
             chapter.push(*addr);
-            chapter_size += size;
+            chapter_size += pages;
 
             if chapter_size >= num_pages {
                 break;
