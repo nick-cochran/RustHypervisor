@@ -1,0 +1,30 @@
+verbose
+// hierarchical
+benchmark
+alloc 10
+alloc 20
+alloc 10
+alloc 20
+alloc 10
+alloc 40
+alloc 10
+alloc 40
+alloc 10
+alloc 100
+alloc 10
+alloc 50
+alloc 10
+free 11
+free 41
+free 71
+free 121
+free 171
+free 281
+alloc 50
+alloc 100
+alloc 40
+alloc 40
+alloc 20
+alloc 20
+print pages
+quit

@@ -1,7 +1,12 @@
-/// TODO file comment
+/// setup.rs
+///
+/// author: Nick Cochran
+/// email: nickcochran02@gmail.com
+///
+/// This file contains setup functions that initialize the hypervisor.
 
 use std::sync::{Arc, Mutex};
-use std::sync::atomic::{AtomicU32, AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicUsize, Ordering};
 use lazy_static::lazy_static;
 use crate::rust_hypervisor;
 use rust_hypervisor::paging::paging_init;
@@ -11,24 +16,20 @@ use crate::rust_hypervisor::paging::arch_paging_access::ArchPagingAccess;
 use crate::user_space_arch::arch::AcdUserLevel;
 
 
-type GlobalUserSpaceHypervisor<'hypervisor> = Arc<Mutex<RustHypervisor<'hypervisor, AcdUserLevel, EcdBase>>>;
+type GlobalUserSpaceHypervisor = Arc<Mutex<RustHypervisor<AcdUserLevel, EcdBase>>>;
 
-// This would be changed based on the build target in Cargo
-// to target specific architectures and execution environments
-type GlobalHypervisor<'hypervisor> = GlobalUserSpaceHypervisor<'hypervisor>;
+/// This would be changed based on the build target in Cargo
+/// to target specific architectures and execution environments
+type GlobalHypervisor = GlobalUserSpaceHypervisor;
 
-static INVALID_CPU_ID: u32 = !0u32;
+static INVALID_CPU_ID: usize = !0usize;
 static NULL_PAGE_SIZE: usize = 0;
 
-static HV_CPU_ID: AtomicU32 = AtomicU32::new(INVALID_CPU_ID);
-
-
-
-
+static HV_CPU_ID: AtomicUsize = AtomicUsize::new(INVALID_CPU_ID);
 
 lazy_static! {
     /// Global Arc Mutex to hold everything in the Hypervisor
-    pub static ref HYPERVISOR : GlobalHypervisor<'static> = Arc::new(Mutex::new(RustHypervisor::new()));
+    pub static ref HYPERVISOR : GlobalHypervisor = Arc::new(Mutex::new(RustHypervisor::new()));
 }
 
 // Store page size in an Atomic to hold it globally and be set by architecture
@@ -36,8 +37,8 @@ pub static PAGE_SIZE : AtomicUsize = AtomicUsize::new(NULL_PAGE_SIZE);
 
 
 
-/// This is where the hypervisor setup starts from the architecture
-pub fn hv_init(cpu_id: u32) -> Result<(), u8> {
+/// Initialize all parts of the hypervisor by calling other init functions.
+pub fn hv_init(cpu_id: usize) -> Result<(), u8> {
 
     // store the page size in the global atomic
     // from the call to the arch_paging struct's get_arch_page_size
@@ -54,12 +55,8 @@ pub fn hv_init(cpu_id: u32) -> Result<(), u8> {
     Ok(())
 }
 
-
-
-
-
-/// initialize the hypervisor system
-fn init_hv_system(cpu_id: u32) -> Result<(), u8> {
+/// Initializes the hypervisor system.
+fn init_hv_system(cpu_id: usize) -> Result<(), u8> {
 
     HV_CPU_ID.store(cpu_id, Ordering::SeqCst);
 

@@ -1,0 +1,168 @@
+-> verbose
+Verbose mode turned on.
+-> hierarchical
+Hierarchical mode turned on.
+-> benchmark
+Benchmarking mode turned on.
+-> alloc 1
+allocated 1 pages for a size of 1 starting at address 1.
+Alloc ran in 0 seconds and 14 microseconds
+-> alloc 2
+allocated 2 pages for a size of 2 starting at address 2.
+Alloc ran in 0 seconds and 2 microseconds
+-> alloc 1
+allocated 1 pages for a size of 1 starting at address 4.
+Alloc ran in 0 seconds and 1 microseconds
+-> alloc 2
+allocated 2 pages for a size of 2 starting at address 5.
+Alloc ran in 0 seconds and 1 microseconds
+-> alloc 1
+allocated 1 pages for a size of 1 starting at address 7.
+Alloc ran in 0 seconds and 1 microseconds
+-> alloc 2
+allocated 2 pages for a size of 2 starting at address 8.
+Alloc ran in 0 seconds and 1 microseconds
+-> alloc 1
+allocated 1 pages for a size of 1 starting at address 10.
+Alloc ran in 0 seconds and 2 microseconds
+-> alloc 2
+allocated 2 pages for a size of 2 starting at address 11.
+Alloc ran in 0 seconds and 1 microseconds
+-> alloc 1
+allocated 1 pages for a size of 1 starting at address 13.
+Alloc ran in 0 seconds and 1 microseconds
+-> alloc 2
+allocated 2 pages for a size of 2 starting at address 14.
+Alloc ran in 0 seconds and 7 microseconds
+-> alloc 1
+allocated 1 pages for a size of 1 starting at address 16.
+Alloc ran in 0 seconds and 2 microseconds
+-> alloc 2
+allocated 2 pages for a size of 2 starting at address 17.
+Alloc ran in 0 seconds and 9 microseconds
+-> alloc 1
+allocated 1 pages for a size of 1 starting at address 19.
+Alloc ran in 0 seconds and 2 microseconds
+-> alloc 2
+allocated 2 pages for a size of 2 starting at address 20.
+Alloc ran in 0 seconds and 2 microseconds
+-> alloc 1
+allocated 1 pages for a size of 1 starting at address 22.
+Alloc ran in 0 seconds and 2 microseconds
+-> alloc 2
+allocated 2 pages for a size of 2 starting at address 23.
+Alloc ran in 0 seconds and 2 microseconds
+-> alloc 1
+allocated 1 pages for a size of 1 starting at address 25.
+Alloc ran in 0 seconds and 2 microseconds
+-> alloc 2
+allocated 2 pages for a size of 2 starting at address 26.
+Alloc ran in 0 seconds and 2 microseconds
+-> alloc 1
+allocated 1 pages for a size of 1 starting at address 28.
+Alloc ran in 0 seconds and 4 microseconds
+-> alloc 2
+allocated 2 pages for a size of 2 starting at address 29.
+Alloc ran in 0 seconds and 2 microseconds
+-> alloc 1
+allocated 1 pages for a size of 1 starting at address 31.
+Alloc ran in 0 seconds and 2 microseconds
+-> free 2
+freed pages for address 2.
+Free ran in 0 seconds and 3 microseconds
+-> free 5
+freed pages for address 5.
+Free ran in 0 seconds and 22 microseconds
+-> free 8
+freed pages for address 8.
+Free ran in 0 seconds and 3 microseconds
+-> free 11
+freed pages for address 11.
+Free ran in 0 seconds and 3 microseconds
+-> free 14
+freed pages for address 14.
+Free ran in 0 seconds and 3 microseconds
+-> free 17
+freed pages for address 17.
+Free ran in 0 seconds and 3 microseconds
+-> free 20
+freed pages for address 20.
+Free ran in 0 seconds and 4 microseconds
+-> free 23
+freed pages for address 23.
+Free ran in 0 seconds and 3 microseconds
+-> free 26
+freed pages for address 26.
+Free ran in 0 seconds and 349 microseconds
+-> free 29
+freed pages for address 29.
+Free ran in 0 seconds and 7 microseconds
+-> alloc 30
+allocated 30 pages for a size of 30 starting at address 32.
+Alloc ran in 0 seconds and 20 microseconds
+-> alloc 50
+allocated 50 pages for a size of 50 starting at address 62.
+Alloc ran in 0 seconds and 3 microseconds
+-> free 32
+freed pages for address 32.
+Free ran in 0 seconds and 27 microseconds
+-> alloc 30
+allocated 30 pages for a size of 30 starting at address 112.
+Alloc ran in 0 seconds and 18 microseconds
+-> free 112
+freed pages for address 112.
+Free ran in 0 seconds and 25 microseconds
+-> free 62
+freed pages for address 62.
+Free ran in 0 seconds and 7 microseconds
+-> print pages
+Printing Physical Pages:
+1 Used pages in address space 1 to 1
+2 Free pages in address space 2 to 3
+1 Used pages in address space 4 to 4
+2 Free pages in address space 5 to 6
+1 Used pages in address space 7 to 7
+2 Free pages in address space 8 to 9
+1 Used pages in address space 10 to 10
+2 Free pages in address space 11 to 12
+1 Used pages in address space 13 to 13
+2 Free pages in address space 14 to 15
+1 Used pages in address space 16 to 16
+2 Free pages in address space 17 to 18
+1 Used pages in address space 19 to 19
+2 Free pages in address space 20 to 21
+1 Used pages in address space 22 to 22
+2 Free pages in address space 23 to 24
+1 Used pages in address space 25 to 25
+2 Free pages in address space 26 to 27
+1 Used pages in address space 28 to 28
+2 Free pages in address space 29 to 30
+1 Used pages in address space 31 to 31
+481 Free pages in address space 32 to 512
+Printing Virtual Pages:
+1 Virtual pages in address space 1 to 1
+1 Virtual pages in address space 4 to 4
+1 Virtual pages in address space 7 to 7
+1 Virtual pages in address space 10 to 10
+1 Virtual pages in address space 13 to 13
+1 Virtual pages in address space 16 to 16
+1 Virtual pages in address space 19 to 19
+1 Virtual pages in address space 22 to 22
+1 Virtual pages in address space 25 to 25
+1 Virtual pages in address space 28 to 28
+1 Virtual pages in address space 31 to 31
+-> quit
+Exiting program.
+Printing out final benchmarking information.
+Alloc Time Stats:
+  Min: 0 seconds and 1 microseconds
+  Avg: 0 seconds and 4 microseconds
+  Max: 0 seconds and 20 microseconds
+Free Time Stats:
+  Min: 0 seconds and 3 microseconds
+  Avg: 0 seconds and 35 microseconds
+  Max: 0 seconds and 349 microseconds
+Overall Time Stats:
+  Min: 0 seconds and 1 microseconds
+  Avg: 0 seconds and 15 microseconds
+  Max: 0 seconds and 349 microseconds

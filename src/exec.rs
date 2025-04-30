@@ -11,4 +11,4 @@
 
 #[derive(Debug,Clone)]
 pub struct EcdBase{}
-impl EcdBase {pub fn new() -> EcdBase {EcdBase {}}}
+// impl EcdBase {pub fn new() -> EcdBase {EcdBase {}}}

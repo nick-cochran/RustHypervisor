@@ -1,32 +1,33 @@
-/// TODO file comment
-
-use crate::rust_hypervisor::paging::declarations::PageTableEntry;
-
-
-/// VirtBook currently does not do anything.
-/// The idea came from remapping structure in Jailhouse which used virtual addresses
-/// from the same struct that also was used for what is now PhysBook.
+/// virt_book.rs
 ///
-/// I do not know if this will be used, but I have opted to leave it in the codebase
-/// in case a use for it shows up later.  I see this as a real possibility, but it depends
-/// on what happens when the connection with architectures is fully fleshed out.
+/// author: Nick Cochran
+/// email: nickcochran02@gmail.com
+///
+/// This file contains the `VirtBook` struct and a new function for it.
 
-pub struct VirtBook<'virt_mem> {
-    pub pages: &'virt_mem [PageTableEntry],
-    pub num_pages: usize,
-    pub num_used_pages: usize,
-    pub used_pages_bitmap: &'virt_mem [u8],
+
+use std::collections::BTreeMap;
+
+use crate::rust_hypervisor::paging::declarations::*;
+
+
+/// This struct contains BTreeMaps that keep track of the mappings from virtual addresses
+/// to physical addresses and vice versa.
+pub struct VirtBook {
+    /// Maps a virtual address to a chapter to the physical address of the corresponding chapters
+    pub virt_page_mapping: Box<BTreeMap<VirtAddress, (NumPages, Vec<PhysAddress>)>>,
+    /// Maps a physical address to the virtual address of the chapter it is in
+    pub phys_page_mapping: Box<BTreeMap<PhysAddress, (NumPages, VirtAddress)>>,
+    /// Variable to hold flags as needed
     pub flags: usize
 }
 
-impl<'virt_mem> VirtBook<'virt_mem> {
-    pub fn new() -> VirtBook<'virt_mem> {
+impl VirtBook {
+    pub fn new() -> VirtBook {
         VirtBook {
-            pages: &[],
-            num_pages: 0,
-            num_used_pages: 0,
-            used_pages_bitmap: &[],
-            flags: 0,
+            virt_page_mapping: Box::new(BTreeMap::new()),
+            phys_page_mapping: Box::new(BTreeMap::new()),
+            flags: 0
         }
     }
 }

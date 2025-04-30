@@ -1,8 +1,14 @@
+/// hypervisor.rs
+///
+/// author: Nick Cochran
+/// email: nickcochran02@gmail.com
+///
+/// This file contains the high level structs that hold all components of the hypervisor.
+
+
 use crate::rust_hypervisor;
 use rust_hypervisor::paging;
 use paging::*;
-// use arch_paging::*;
-// use declarations::*;
 use arch_paging::*;
 use phys_book::*;
 use virt_book::*;
@@ -11,31 +17,29 @@ use super::super::user_space_arch::arch::AcdUserLevel;
 use super::super::exec::EcdBase;
 
 
-
-pub struct RustHypervisor<'hypervisor, ACD = AcdUserLevel, ECD = EcdBase> {
+/// The overall struct that holds everything in the hypervisor.
+pub struct RustHypervisor<ACD = AcdUserLevel, ECD = EcdBase> {
     pub rust_hypervisor_header: RustHypervisorHeader,
-    pub rust_hv_memory: RustHypervisorMemory,
-    pub rust_hypervisor_paging: RustHypervisorPaging<'hypervisor, ACD, ECD>
+    pub rust_hypervisor_paging: RustHypervisorPaging<ACD, ECD>
 }
 
-impl<ACD, ECD> RustHypervisor<'_, ACD, ECD> {
+impl<ACD, ECD> RustHypervisor<ACD, ECD> {
     pub fn new() -> Self {
         RustHypervisor::<ACD, ECD> {
             rust_hypervisor_header: RustHypervisorHeader::new(),
-            rust_hv_memory: RustHypervisorMemory::new(),
             rust_hypervisor_paging: RustHypervisorPaging::new(),
         }
     }
 }
 
-
-pub struct RustHypervisorPaging<'mem, ACD, ECD> { // TODO can probably remove 'virt_mem, but figure that out
+/// The struct that holds all the paging related components of the hypervisor.
+pub struct RustHypervisorPaging<ACD, ECD> {
     pub phys_book: PhysBook,
     pub arch_paging_struct: ArchPaging<ACD, ECD>,
-    pub virt_book: VirtBook<'mem>
+    pub virt_book: VirtBook
 }
 
-impl<ACD, ECD> RustHypervisorPaging<'_, ACD, ECD> {
+impl<ACD, ECD> RustHypervisorPaging<ACD, ECD> {
     pub fn new() -> Self {
         RustHypervisorPaging {
             phys_book: PhysBook::new(),
@@ -45,40 +49,21 @@ impl<ACD, ECD> RustHypervisorPaging<'_, ACD, ECD> {
     }
 }
 
-
+/// The header struct that holds information about the hypervisor.
 pub struct RustHypervisorHeader { // from jailhouse
-    signature: [char; 5],
-    arch: u8,
-    flags: usize,
-    max_cpus: usize
+    _signature: [char; 5],
+    _arch: u8,
+    _flags: usize,
+    _max_cpus: usize
 }
 
 impl RustHypervisorHeader {
     pub fn new() -> Self {
-        RustHypervisorHeader { // FIXME
-            signature: ['0', '1', '2', '3', '4'],
-            arch: 0,
-            flags: 0,
-            max_cpus: 1,
-        }
-    }
-}
-
-
-pub struct RustHypervisorMemory { // from jailhouse
-    phys_start: usize,
-    virt_start: usize,
-    size: usize,
-    flags: usize
-}
-
-impl RustHypervisorMemory {
-    pub fn new() -> Self {
-        RustHypervisorMemory { // FIXME
-            phys_start: 0,
-            virt_start: 0,
-            size: 0,
-            flags: 0,
+        RustHypervisorHeader {
+            _signature: ['0', '1', '2', '3', '4'], // random value for now
+            _arch: 0,
+            _flags: 0,
+            _max_cpus: 1,
         }
     }
 }

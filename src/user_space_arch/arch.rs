@@ -5,4 +5,4 @@
 
 #[derive(Debug,Clone)]
 pub struct AcdUserLevel{}
-impl AcdUserLevel {pub fn new() -> AcdUserLevel {AcdUserLevel {}}}
+// impl AcdUserLevel {pub fn new() -> AcdUserLevel {AcdUserLevel {}}}
