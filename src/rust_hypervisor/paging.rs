@@ -70,9 +70,9 @@ pub fn paging_init() -> Result<(), u8> {
 ///
 /// # Returns
 ///
-/// * `Ok(PhysAddress)` - physical address of the allocated memory if successful
+/// * `Ok(VirtAddress)` - virtual address of the allocated memory if successful
 /// * `Err(u8)` - error code if the allocation failed
-pub fn alloc(size: usize, hierarchical: bool) -> Result<PhysAddress, u8> {
+pub fn alloc(size: usize, hierarchical: bool) -> Result<VirtAddress, u8> {
     // create necessary variables
     let mut hypervisor_struct = HYPERVISOR.lock().unwrap();
     let paging_structs = &mut hypervisor_struct.rust_hypervisor_paging;
